@@ -26,6 +26,7 @@ After installing it, run:
 
 ```vim
 helptags /path/to/this/repository/doc
+```
 
 ## Full documentation
 
