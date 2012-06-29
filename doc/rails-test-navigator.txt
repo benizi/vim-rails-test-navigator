@@ -1,0 +1,45 @@
+*rails-test-navigator.txt*    Commands for moving between Rails files
+*r-t-n-plugin* *railstestnav* *rails-test-navigator*
+
+Rails Test Navigator
+
+Author: Benjamin R. Haskell - benizi
+
+==============================================================================
+CONTENTS                                                *r-t-n-contents* {{{1
+
+1. Contents............................................|r-t-n-contents|
+2. Functions..........................................|r-t-n-functions|
+3. Commands............................................|r-t-n-commands|
+
+==============================================================================
+FUNCTIONS                                              *r-t-n-functions* {{{1
+
+                                                          *railstestnav#Root*
+railstestnav#Root([{file}])
+   Return what RAILS_ROOT or Rails.root would return for the closest Rails root
+   to {file} (defaults to current buffer's path).
+
+                                                     *railstestnav#Alternate*
+railstestnav#Alternate([{file}])
+   Return the path to the "alternate" file for {file} (defaults to current
+   buffer's path).
+
+   Currently-handled alternates:
+
+   RSpec spec file <-> Implementation file
+   e.g.
+     spec/foo/bar_spec.rb
+     app/foo/bar.rb
+
+   Turnip feature file <-> Turnip steps file
+   e.g.
+     spec/features/foo/bar.feature
+     spec/features/steps/foo/bar_steps.rb
+
+==============================================================================
+COMMANDS                                                *r-t-n-commands* {{{1
+
+                                                                         *:T*
+:T
+   Open the related test file for the current file
