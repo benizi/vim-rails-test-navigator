@@ -5,8 +5,14 @@ fun! s:ToggleTestFile(force)
   if already_open >= 0 && !strlen(a:force)
     exe already_open.'winc w'
   else
-    exe 'new '.fnameescape(alt)
+    call s:OpenFile(alt)
   end
+endf
+
+fun! s:OpenFile(file)
+  let key = 'rtn_open_with'
+  let opener = get(b:, key, get(g:, key, 'bo vne'))
+  exe opener fnameescape(a:file)
 endf
 
 fun! s:DefineCommands()

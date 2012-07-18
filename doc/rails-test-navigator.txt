@@ -11,6 +11,7 @@ CONTENTS                                                *r-t-n-contents* {{{1
 1. Contents............................................|r-t-n-contents|
 2. Functions..........................................|r-t-n-functions|
 3. Commands............................................|r-t-n-commands|
+4. Settings............................................|r-t-n-settings|
 
 ==============================================================================
 FUNCTIONS                                              *r-t-n-functions* {{{1
@@ -49,3 +50,13 @@ COMMANDS                                                *r-t-n-commands* {{{1
                                                                         *:T!*
 :T!
    Like |:T|, but always open, regardless of whether it's already open.
+
+==============================================================================
+SETTINGS                                                *r-t-n-settings* {{{1
+
+                                                              *rtn_open_with*
+g:rtn_open_with / b:rtn_open_with
+   Specify the command with which to open new windows.
+   Default is: 'bo vne'
+   See |:botright| and |:vnew| for explanations.
+   Also |:aboveleft| and |:split_f| (|:new|) for other reasonable choices.
