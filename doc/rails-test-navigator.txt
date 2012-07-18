@@ -9,9 +9,59 @@ Author: Benjamin R. Haskell - benizi
 CONTENTS                                                *r-t-n-contents* {{{1
 
 1. Contents............................................|r-t-n-contents|
-2. Functions..........................................|r-t-n-functions|
-3. Commands............................................|r-t-n-commands|
-4. Settings............................................|r-t-n-settings|
+2. Installation.........................................|r-t-n-install|
+ ... If you have vim-addon-manager already.........|r-t-n-install-this|
+3. Functions..........................................|r-t-n-functions|
+4. Commands............................................|r-t-n-commands|
+5. Settings............................................|r-t-n-settings|
+
+==============================================================================
+INSTALLATION                                             *r-t-n-install* {{{1
+
+If you don't already use a Vim plugin manager, install one now.  I recommend
+vim-addon-manager (vam) for installing plugins and pathogen for setting them up
+when Vim starts.
+
+1. Installing vim-addon-manager and pathogen
+
+Install pathogen via the following shell commands: >
+  mkdir -p ~/.vim/autoload
+  curl -o ~/.vim/autoload/pathogen.vim \
+    https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+<
+
+To install vam and setup vam and pathogen, add the following to your .vimrc: >
+  " Modify the following path to suit your preferences
+  " Using '~/.vim/bundle' keeps things in line with pathogen's default.
+  " Personally, I like keeping it out of ~/.vim/, so I use:
+  let s:plugins_path = expand('~/.vim-bundle')
+  let s:vam_path = s:plugins_path.'/vim-addon-manager'
+
+  fun! s:VAMInstalled()
+    return isdirectory(s:vam_path.'/autoload')
+  endf
+
+  if !s:VAMInstalled()
+  \ && 1 == confirm("Install Vim Addon Manager?", "&Yes\n&No")
+    call mkdir(s:plugins_path, 'p')
+    let git = 'git://github.com/MarcWeber/vim-addon-manager'
+    exe '!git clone' git shellescape(s:vam_path,1)
+    exe 'helptags' fnameescape(s:vam_path . '/doc')
+  end
+
+  if s:VAMInstalled()
+    call vam#ActivateAddons()
+  end
+
+  call pathogen#infect(s:plugins_path)
+<
+
+                                                         *r-t-n-install-this*
+2. This plugin
+
+In Vim, run: >
+  :InstallAddons github:benizi/vim-rails-test-navigator
+<
 
 ==============================================================================
 FUNCTIONS                                              *r-t-n-functions* {{{1
