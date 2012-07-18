@@ -42,4 +42,10 @@ COMMANDS                                                *r-t-n-commands* {{{1
 
                                                                          *:T*
 :T
-   Open the related test file for the current file
+   Open the related test file for the current file.
+   If it is already open, switch to its window.
+   See |railstestnav#Alternate| for the list of alternates handled.
+
+                                                                        *:T!*
+:T!
+   Like |:T|, but always open, regardless of whether it's already open.

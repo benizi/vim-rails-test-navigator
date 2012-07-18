@@ -1,8 +1,8 @@
-fun! s:ToggleTestFile()
+fun! s:ToggleTestFile(force)
   let alt = railstestnav#Alternate()
 
   let already_open = bufwinnr(fnamemodify(alt, ':p'))
-  if already_open >= 0
+  if already_open >= 0 && !strlen(a:force)
     exe already_open.'winc w'
   else
     exe 'new '.fnameescape(alt)
@@ -10,7 +10,7 @@ fun! s:ToggleTestFile()
 endf
 
 fun! s:DefineCommands()
-  com! T sil! call s:ToggleTestFile()
+  com! -bang T sil! call s:ToggleTestFile('<bang>')
 endf
 
 fun! s:SetupNewBuffer()
