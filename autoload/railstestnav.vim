@@ -12,7 +12,7 @@ fun! railstestnav#Root(...)
     let start = ''
     while dir != '/' && dir != l:start
       let start = dir
-      if isdirectory(dir.'/app')
+      if !empty(filter(['app','spec','lib'], 'isdirectory(dir."/".v:val)'))
         let root = dir
         break
       end
@@ -26,27 +26,28 @@ fun! railstestnav#Root(...)
   return s:rails_root_cache[input]
 endf
 
-fun! s:Contains(list, thing)
-  return len(filter(copy(a:list), 'v:val == a:thing'))
-endf
-
-fun! s:Upto(list, thing)
-  let ret = []
-  for item in a:list
-    call add(ret, item)
-    if item == a:thing
-      break
+fun! railstestnav#App(...)
+  let root = call('railstestnav#Root', a:000)
+  for subdir in ['app', 'lib']
+    let dir = root . '/' . subdir
+    if isdirectory(dir)
+      return dir
     end
   endfo
-  return ret
 endf
 
-fun! s:Path(parts)
-  return join(copy(a:parts), '/')
+fun! railstestnav#SpecBase(...)
+  let spec = call('railstestnav#Root', a:000).'/spec'
+  let app = call('railstestnav#App', a:000)
+  let subdir = split(copy(app), '/')[-1]
+  if subdir != 'spec' && isdirectory(spec.'/'.subdir)
+    let spec .= '/'.subdir
+  end
+  return spec
 endf
 
-fun! s:PathUpto(list, root, thing)
-  return s:Path([a:root] + s:Upto(a:list, a:thing))
+fun! railstestnav#Features(...)
+  return call('railstestnav#Root', a:000).'/spec/features'
 endf
 
 if exists('g:railstestnav_debug') && g:railstestnav_debug
@@ -57,47 +58,45 @@ end
 
 fun! railstestnav#Alternate(...)
   let input = a:0 ? a:1 : expand('%:p')
-  let ext = expand('%:e')
+  let ext = fnamemodify(input, ':e')
 
-  let root = railstestnav#Root(input)
-  let rel = strpart(input, 1+strlen(root))
+  let app = railstestnav#App(input)
+  let spec_base = railstestnav#SpecBase(input)
+  let features = railstestnav#Features(input)
+  let steps = features.'/steps'
 
-  let path = split(rel, '/')
-  let top = path[0]
-  let base = path[-1]
-
-  if top == 'spec'
-    DEBUG 'in tests'
-    if s:Contains(path, 'features')
-      DEBUG 'in features'
-      let features = s:PathUpto(path, root, 'features')
-      if s:Contains(path, 'steps')
-        DEBUG 'in steps : go to features'
-        let mod = substitute(base, '_steps\.rb$', '.feature', '')
-        if base != mod
-          return s:Path([features, mod])
-        end
-      else
-        DEBUG 'go to steps'
-        let mod = substitute(base, '\.feature$', '_steps.rb', '')
-        if base != mod
-          return s:Path([features, 'steps', mod])
-        end
-      end
+  if stridx(input, features) >= 0
+    if stridx(input, steps) >= 0
+      let bases = [ steps, features ]
+      let replacements = [ '_steps\.rb$', '.feature' ]
     else
-      DEBUG 'go to app'
-      let mod = substitute(base, '_spec\ze\.rb$', '', '')
-      if base != mod
-        return s:Path(['app'] + path[1:-2] + [ mod ])
-      end
+      let bases = [ features, steps ]
+      let replacements = [ '\.feature$', '_steps.rb' ]
     end
-  elseif top == 'app'
-    DEBUG 'in app : go to tests'
-    let mod = substitute(base, '\ze\.rb$', '_spec', '')
-    if base != mod
-      return s:Path(['spec'] + path[1:-2] + [ mod ])
-    end
+  elseif stridx(input, spec_base) >= 0
+    let bases = [ spec_base, app ]
+    let replacements = [ '\.haml\zs_spec\.rb$', '', '_spec\ze\.rb$', '' ]
+  elseif stridx(input, app) >= 0
+    let bases = [ app, spec_base ]
+    let replacements = [ '\.haml\zs$', '_spec.rb', '\ze\.rb$', '_spec' ]
+  else
+    throw 'rtn-E000: no Alternate file for '.input
   end
 
-  throw 'rtn-E000: no Alternate file for '.input
+  let [this_base, other_base] = bases
+
+  let rel = strpart(input, 1+strlen(this_base))
+
+  let parts = split(rel, '/')
+  let base = remove(parts, -1)
+
+  while !empty(replacements)
+    let [from, to] = remove(replacements, 0, 1)
+    let mod = substitute(copy(base), from, to, '')
+    if mod != base
+      break
+    end
+  endw
+
+  return join([other_base] + parts + [mod], '/')
 endf
